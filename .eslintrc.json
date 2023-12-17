@@ -8,5 +8,6 @@
     "sourceType": "module"
   },
   "rules": {
+    "no-relative-import": "error"
   }
 }
