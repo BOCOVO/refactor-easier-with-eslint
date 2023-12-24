@@ -1,11 +1,19 @@
+const path = require("path");
 
 /**
- * 
- * @param {string} path 
- * @returns 
+ *
+ * @param {string} path
+ * @returns
  */
 const checkIsRelativeImport = (path) => {
   return path.startsWith("../");
+};
+
+const getAbsolutePath = (rootDir, currentModulePath, importedModulePath) => {
+  const absolutePath = path.join(currentModulePath, importedModulePath);
+  const projectRelatedAbsolutePath = absolutePath.replace(`${rootDir}/`, "");
+
+  return projectRelatedAbsolutePath;
 };
 
 module.exports = {
@@ -29,6 +37,20 @@ module.exports = {
         context.report({
           node,
           message: "Relative import are not allowed",
+          fix(fixer) {
+            const absolutePath = getAbsolutePath(
+              context.getCwd(),
+              context.getPhysicalFilename(),
+              path
+            );
+
+            const replacementRange = [
+              node.source.start + 1,
+              node.source.end - 1,
+            ]; // this range of the path without quotes
+
+            return fixer.replaceTextRange(replacementRange, absolutePath);
+          },
         });
       },
     };
